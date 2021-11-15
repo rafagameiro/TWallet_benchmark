@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Twallet Test</string>
+    <string name="app_icon">App Icon</string>
+    <string name="twallet_tests">Twallet Tests</string>
+    <string name="components_tests">Components Tests</string>
+    <string name="secure_storage">Secure Storage Test</string>
+    <string name="auth_service">Auth Service Test</string>
+    <string name="monitoring_service">Monitoring Service Test</string>
+    <string name="logging_service">Logging Service Test</string>
+    <string name="attestation_service">Attestation Service Test</string>
+    <string name="Operation_tests">Operation Tests</string>
+    <string name="with_components">With Components</string>
+    <string name="without_components">Without Components</string>
+    <string name="test_button">Start Test</string>
+    <string name="testsTitle">Tests</string>
+    <string name="from_normal_world">From Normal World</string>
+    <string name="from_secure_world">From Secure World</string>
+    <string name="key_gen">Key Generation</string>
+    <string name="attestation_process">Attestation Process</string>
+    <string name="context_switch">Context Switch</string>
+    <string name="testsReps">No. of repetitions:</string>
+    <string name="defaultTestReps">70</string>
+</resources>

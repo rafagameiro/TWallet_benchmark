@@ -10,7 +10,7 @@ To install the Benchmark Trusted Applications you can just follow the same guide
 ```
 adb root
 adb remount
-adb push [name-of-apk].ta /vendor/optee-armtz/
+adb push [name-of-file].ta /vendor/lib/optee_armtz/
 adb reboot
 ```
 

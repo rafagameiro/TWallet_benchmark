@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.twallet.test">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <application
+        android:requestLegacyExternalStorage="true"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:largeHeap="true"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Test">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".tests.ComponentsTests"
+            android:theme="@style/Theme.Test"
+            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".tests.ContextSwitchTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Context Switch Tests"
+            android:parentActivityName=".tests.ComponentsTests"/>
+        <activity
+            android:name=".tests.AttestationMenu"
+            android:theme="@style/Theme.Test"
+            android:label="Attestation Tests"
+            android:parentActivityName=".tests.ComponentsTests"/>
+        <activity
+            android:name=".tests.AttestationKeyGenTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Key Generation Tests"
+            android:parentActivityName=".tests.AttestationMenu"/>
+        <activity
+            android:name=".tests.AttestationProcessTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Attestation Process Tests"
+            android:parentActivityName=".tests.AttestationMenu"/>
+        <activity
+            android:name=".tests.SecureStorageMenu"
+            android:theme="@style/Theme.Test"
+            android:label="Secure Storage Tests"
+            android:parentActivityName=".tests.ComponentsTests"/>
+        <activity
+            android:name=".tests.SecureStorageNWTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Secure Storage Tests From Normal World"
+            android:parentActivityName=".tests.SecureStorageMenu"/>
+        <activity
+            android:name=".tests.SecureStorageSWTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Secure Storage Tests From Secure World"
+            android:parentActivityName=".tests.SecureStorageMenu"/>
+        <activity
+            android:name=".tests.AuthServiceMenu"
+            android:theme="@style/Theme.Test"
+            android:label="Authentication Tests"
+            android:parentActivityName=".tests.ComponentsTests"/>
+        <activity
+            android:name=".tests.AuthServiceNWTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Authentication Tests From Normal World"
+            android:parentActivityName=".tests.AuthServiceMenu"/>
+        <activity
+            android:name=".tests.AuthServiceSWTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Authentication Tests From Secure World"
+            android:parentActivityName=".tests.AuthServiceMenu"/>
+        <activity
+            android:name=".tests.MonitoringTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Monitoring Tests"
+            android:parentActivityName=".tests.ComponentsTests"/>
+        <activity
+            android:name=".tests.LoggingTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Logging Tests"
+            android:parentActivityName=".tests.ComponentsTests"/>
+        <activity
+            android:name=".tests.OperationTests"
+            android:theme="@style/Theme.Test"
+            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".tests.WithComponentsTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Operations With Components Tests"
+            android:parentActivityName=".tests.OperationTests"/>
+        <activity
+            android:name=".tests.WithoutComponentsTests"
+            android:theme="@style/Theme.TestActionBar"
+            android:label="Operations Without Components Tests"
+            android:parentActivityName=".tests.OperationTests"/>
+    </application>
+
+</manifest>
