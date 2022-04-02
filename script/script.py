@@ -7,60 +7,6 @@ import numpy as np
 import pandas as pd  
 import matplotlib.pyplot as plt
 
-def draw_barplot(names, data, error, context_switch = 0, context_switch_error = 0):
-
-    fig = plt.figure()
-    
-    # creating the bar plot
-    plt.grid(zorder=0, which='both')
-    plt.bar(names, context_switch, yerr=context_switch_error, edgecolor='black', align='center', ecolor='black', capsize=10, color ='#B8B8B8', width = 0.4, zorder=3)
-    plt.bar(names, data, bottom=context_switch, yerr=error, edgecolor='black', align='center', ecolor='black', capsize=10, color ='#808080', width = 0.4, zorder=3)
-
-    if context_switch != 0:
-        if "Credentials" in names[0]:
-            plt.legend(["Context Switch", "Authentication Service"])
-        if "Data" in names[0]:
-            plt.legend(["Context Switch", "Secure Storage"])
-    plt.minorticks_on()
-    plt.xlabel("Operations")
-    plt.ylabel("Latency (ms)")
-    plt.show()
-
-def process_files(directory):
-        
-    filenames = next(walk(directory), (None, None, []))[2]
-    files_data = []
-    files_names = []
-    files_error = []
-    file_context_switch = ""
-
-    for filename in filenames:
-        if "context-switch" in filename:
-            file_context_switch = filename
-            filenames.remove(filename)
-
-    for filename in filenames:
-        data, error = load_file(directory + filename)
-        files_data.append(data)
-        if "authentication" in filename:
-            files_names.append(filename.split("-")[1].capitalize() + " Credentials")
-        elif "storage":
-            files_names.append(filename.split("-")[1].capitalize() + " Data")
-        else:
-            files_names.append(filename.split("-")[1].capitalize())
-        files_error.append(error)
-
-    if len(file_context_switch) > 0:
-        data, error = load_file(directory + file_context_switch)
-        temp_data = []
-        for file in files_data:
-            temp_data.append(file - data)
-        files_data = temp_data
-
-        draw_barplot(files_names, files_data, files_error, data, error)
-    else:    
-        draw_barplot(files_names, files_data, files_error)
-
 #------------------------------------- Process Attestation ---------------------------------------
 
 def draw_scatterplot(x, y, names, xlabel, ylabel):
@@ -95,19 +41,20 @@ def process_attestation(directory):
     files_data_x = {}
     files_data_y = {}
     files_names = []
-
+    filenames = sorted(filenames, key=lambda x: int(x.split('-')[2]))
+    print (filenames)
     for filename in filenames:
         data, _ = load_file(directory + filename)
         name = filename.split("-")[1]
         if name not in files_data_x:
             files_data_x[name] = []
             files_data_y[name] = []
-
+        
         files_data_y[name].append(data)
         files_data_x[name].append(filename.split("-")[2])
         if name not in files_names:
             files_names.append(filename.split("-")[1])
-
+    
     draw_scatterplot(files_data_x, files_data_y, files_names, "Key Sizes", "Latency (ms)")
 
 #------------------------------------- Process Resources ---------------------------------------
@@ -152,6 +99,7 @@ def draw_areaplot(x, y, names, y_label):
         colors = ['#39e600', '#248f24']
     
     i = 0
+    plt.rcParams.update({'font.size': 15})
     for name in names:
         y[i].plot(kind='area', stacked=False, color=colors)
         i = i + 1
@@ -159,9 +107,36 @@ def draw_areaplot(x, y, names, y_label):
         plt.xlabel('Time (s)')
         plt.ylabel(y_label)
         plt.ylim([0, 100])
-        plt.legend(loc='upper right')
+        plt.legend(loc='upper right', prop={'size': 15})
         # giving a title to my graph
         plt.show()
+
+def draw_lineplot(x, y, names, y_label):
+
+    types = ['twallet', 'normal']
+    linestyles = ['--', ':'] 
+    colors = []
+    if "Memory" in y_label:
+        colors = ['#6666ff', '#0000cc']
+    elif "CPU" in y_label:
+        colors = ['#39e600', '#248f24']
+    
+    i = 0
+    print(x)
+    print(y)
+    plt.rcParams.update({'font.size': 15})
+    fig, axs = plt.subplots(1, 3, sharey=True, gridspec_kw={'wspace': 0.05}) 
+    fig.text(0.5, 0.04,'Time (s)', va='center', ha='center')
+    fig.text(0.08, 0.5, y_label, va='center', ha='center', rotation='vertical')
+    for name in names:
+        axs[i].plot(x[name], y[i].loc[:, "twallet"], label="twallet", color="#000000", linestyle='--')
+        axs[i].plot(x[name], y[i].loc[:, "normal"], label="normal", color="#000000")
+        i = i + 1
+        # naming the axis
+    plt.ylim([0, 400])
+    plt.legend(loc='upper right', prop={'size': 15})
+    # giving a title to my graph
+    plt.show()
 
 def process_resources(directory):
         
@@ -179,7 +154,8 @@ def process_resources(directory):
         max_range = 19
         y_label = "CPU (%)"
     elif "memory" in directory:
-        max_range = 9
+        #max_range = 7 #for memory_1
+        max_range = 7 #for memory_2
         y_label = "Memory (MB)"
 
     for filename in filenames:
@@ -199,8 +175,9 @@ def process_resources(directory):
     temp_data_y = combine_values(temp_data_y)
     for name in files_names:
         files_data_y.append(pd.DataFrame(temp_data_y[name], columns=['twallet', 'normal']))
-    
-    draw_areaplot(files_data_x, files_data_y, files_names, y_label)
+   
+    #draw_areaplot(files_data_x, files_data_y, files_names, y_label)
+    draw_lineplot(files_data_x, files_data_y, files_names, y_label)
 
 #------------------------------------- Compare Files ---------------------------------------
 
@@ -240,22 +217,23 @@ def load_file(filename, scale=1.0):
 def draw_plot(x, y, error, plot_type, xlabel, ylabel):
 
     # plotting the points 
-
+    plt.rcParams.update({'font.size': 15})
     if plot_type == "network":
         # Networking
-        ax = x.plot(kind='bar', yticks=y, yerr=error, ecolor='black', capsize=10, align='center', color=['#0040ff', '#002699'], rot=0)
+        ax = x.plot(kind='bar', yticks=y, yerr=error, ecolor='black', capsize=10, align='center', color=['#00bfff', '#002699'], rot=0)
     else:
         #Performance
-        ax = x.plot(kind='bar', yticks=y, yerr=error, ecolor='black', capsize=10, align='center', color=['#B8B8B8', '#808080', '#505050'], rot=0)
-    
+        ax = x.plot(kind='bar', yticks=y, yerr=error, ecolor='black', capsize=10, align='center', color=['#B8B8B8', '#808080', '#505050'], rot=0, fontsize=15)
+         
     ax.set_axisbelow(True)
 
     plt.grid(zorder=0, which='both')
     plt.minorticks_on()
     # naming the axis
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-                                  
+    #plt.xlabel(xlabel)
+    plt.ylabel(ylabel, fontsize=12)
+    plt.yticks(fontsize=10)
+    plt.legend(prop={'size': 15})                              
     plt.show()
 
 def compare_files(directory, args):
@@ -290,7 +268,7 @@ def compare_files(directory, args):
         if x[2] not in d_file:
             d_file[x[2]] = []
         d_file[x[2]].append(filename)
-
+    
     d_value = {}
     max_value = []
     data_error = {}
@@ -302,7 +280,7 @@ def compare_files(directory, args):
             d_value[key].append(data)
             data_error[key].append(error)
         max_value.append(np.max(d_value[key]))
-
+    
     data_y = np.arange(0, np.max(max_value) + int(metrics[0]), int(metrics[1]))
     data_x = pd.DataFrame(d_value, index = data_index)  
     draw_plot(data_x, data_y, data_error, plot_type, "Operations", "Latency (ms)")
@@ -314,18 +292,20 @@ def draw_barplot(names, data, error, context_switch = 0, context_switch_error = 
     fig = plt.figure()
     
     # creating the bar plot
+    plt.rcParams.update({'font.size': 15})
     plt.grid(zorder=0, which='both')
     plt.bar(names, context_switch, yerr=context_switch_error, edgecolor='black', align='center', ecolor='black', capsize=10, color ='#B8B8B8', width = 0.4, zorder=3)
     plt.bar(names, data, bottom=context_switch, yerr=error, edgecolor='black', align='center', ecolor='black', capsize=10, color ='#808080', width = 0.4, zorder=3)
 
     if context_switch != 0:
         if "Credentials" in names[0]:
-            plt.legend(["Context Switch", "Authentication Service"])
+            plt.legend(["Context Switch", "Authentication Service"], prop={'size':15})
         if "Data" in names[0]:
-            plt.legend(["Context Switch", "Secure Storage"])
+            plt.legend(["Context Switch", "Secure Storage"], prop={'size':15})
     plt.minorticks_on()
-    plt.xlabel("Operations")
-    plt.ylabel("Latency (ms)")
+    plt.xlabel("Operations", fontsize=12)
+    plt.ylabel("Latency (ms)", fontsize=12)
+    plt.yticks(fontsize=10)
     plt.show()
 
 def process_files(directory):
@@ -351,13 +331,30 @@ def process_files(directory):
         else:
             files_names.append(filename.split("-")[1].capitalize())
         files_error.append(error)
-
+    files_names = ['Logging: New Entry', 'Monitoring: Filter']
     if len(file_context_switch) > 0:
         data, error = load_file(directory + file_context_switch)
         temp_data = []
         for file in files_data:
             temp_data.append(file - data)
         files_data = temp_data
+
+        draw_barplot(files_names, files_data, files_error, data, error)
+    else:    
+        draw_barplot(files_names, files_data, files_error)
+
+def process_files_1(directory):
+        
+    filenames = next(walk(directory), (None, None, []))[2]
+    files_data = []
+    files_names = []
+    files_error = []
+
+    for filename in filenames:
+        data, error = load_file(directory + filename)
+        files_data.append(data)
+        files_names.append(filename.split("-")[3].upper())
+        files_error.append(error)
 
         draw_barplot(files_names, files_data, files_error, data, error)
     else:    
@@ -415,7 +412,7 @@ def main(argv):
     opts, args = getopt.getopt(argv,"ha:r:c:p:s:",["attestation","resource","compare","process=", "stats="])
     for opt, arg in opts:
         if opt == '-h':
-            print ("script.py -<c or p>")
+            print_help()
             sys.exit()
         elif opt in ("-a", "--attestation"):
             process_attestation(arg)
